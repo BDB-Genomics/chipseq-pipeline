@@ -1,0 +1,36 @@
+rule frip_calculation:
+    input:
+        filtered_peaks=lambda wildcards: f"{config['frip_calculation']['input']['filtered_peaks']}/{wildcards.sample}_filtered_peaks.bed",
+        shifted_bam=lambda wildcards: f"{config['frip_calculation']['input']['filtered_bam']}/{wildcards.sample}.filtered.bam"
+
+    output:
+        frip=f"{config['frip_calculation']['output']}/{{sample}}_frip.txt"
+        
+
+    resources:
+        mem_mb=config['frip_calculation']['resources']['mem_mb'], 
+        time=config['frip_calculation']['resources']['time']
+
+    benchmark: "benchmarks/frip/{sample}.txt"
+    log: "logs/frip/{sample}.err"
+    threads: config['frip_calculation']['threads']       
+    container: "https://depot.galaxyproject.org/singularity/bedtools:2.31.1--h13024bc_3"
+    conda: "envs/bedtools.yaml"
+        
+    message:
+        "[FRiP calculation] Sample: {wildcards.sample} | Peaks: {input.filtered_peaks} | BAM: {input.shifted_bam} | Output: {output.frip}"
+        
+    shell:
+        """
+        (
+        sed 's/^chr//g' {input.filtered_peaks} > {input.filtered_peaks}.nochr
+        total_fragments=$(samtools view -c -f 64 {input.shifted_bam})
+        fragments_in_peaks=$(bedtools coverage -a {input.filtered_peaks}.nochr -b {input.shifted_bam} | awk '{{sum += $11}} END {{print sum+0}}')
+        frip=$(echo "scale=6; ${{fragments_in_peaks}} / ${{total_fragments}}" | bc)
+        echo -e "FRiP\t$frip"  > {output.frip}
+        echo -e "..................................................................." >> {output.frip}
+        echo -e "Sample\\tTotal_Reads\\tReads_in_Peaks\\tFRiP_Score" >> {output.frip}
+        echo -e "{wildcards.sample}\\t$total_fragments\\t$fragments_in_peaks\\t$frip" >> {output.frip}
+        ) 2> {log}        
+        """
+

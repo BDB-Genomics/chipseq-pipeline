@@ -1,0 +1,195 @@
+================================================================================
+          CHIP-SEQ PIPELINE CONFIGURATION & PARAMETER VERIFICATION
+================================================================================
+
+INSTRUCTIONS FOR REVIEWER:
+This document lists the critical parameters, software choices, and filters 
+currently used inside the pipeline's rules/ folder and config.yaml. 
+For each step, a foundational paper or ENCODE standard is provided. 
+Your job is to read the paper, compare its guidelines against the pipeline's 
+current settings, and confirm if our configuration is scientifically valid for 
+our specific organism and experiment.
+
+For each parameter, leave a note: [PASS], [FAIL], or [NEEDS DISCUSSION]
+
+--------------------------------------------------------------------------------
+1. READ TRIMMING & PREPROCESSING (fastp)
+--------------------------------------------------------------------------------
+Tools used: fastp
+Current Pipeline Settings:
+- trim_front1: 5 (trim 5bp from 5' end of R1)
+- trim_front2: 5 (trim 5bp from 5' end of R2)
+- length_required: 30 (discard reads shorter than 30bp)
+
+READING ASSIGNMENT:
+* Paper: "fastp: an ultra-fast all-in-one FASTQ preprocessor" (Chen et al., 2018)
+  DOI: 10.1093/bioinformatics/bty560
+* ENCODE standard: ENCODE allows length >= 36bp on standard NextSeq/NovaSeq.
+
+REVIEWER NOTES:
+- Are trimming 5bp from the 5' end biologically sound for our library prep?
+- Is 30bp length cutoff too short or too long?
+-> Verdict: 
+
+
+--------------------------------------------------------------------------------
+2. ALIGNMENT TO REFERENCE GENOME (Bowtie2)
+--------------------------------------------------------------------------------
+Tools used: Bowtie2, samtools view
+Current Pipeline Settings:
+- param: --very-sensitive (Bowtie2 rigorous mode)
+- filter: samtools view -Sb -F 4 -f 2 (Keep only proper paired reads, exclude unmapped)
+
+READING ASSIGNMENT:
+* Paper: ENCODE Guidelines for ChIP-seq data (Landt et al., 2012)
+  DOI: 10.1101/gr.136184.111
+* Paper: "Impact of artifact removal on ChIP quality metrics" (Carroll et al., 2014)
+  DOI: 10.3389/fgene.2014.00137
+
+REVIEWER NOTES:
+- Should we use --very-sensitive, or is default/local mapping better for our samples?
+- Do we need to filter for specific insert sizes at this step?
+-> Verdict: 
+
+
+--------------------------------------------------------------------------------
+3. MITOCHONDRIAL FILTERING & DUPLICATE REMOVAL
+--------------------------------------------------------------------------------
+Tools used: samtools
+Current Pipeline Settings:
+- mitochondrial filtering: explicitly drops reads on "MT" chromosome
+- samtools markdup: explicitly removes duplicates (remove_duplicates: "r" param)
+
+READING ASSIGNMENT:
+* Paper: "Impact of duplicate removal on ChIP-seq data..." (Bailey et al., 2013)
+  URL: ENCODE consortium best practices website
+  *Note: Duplicates in highly enriched TF datasets might be real biology, whereas 
+   duplicates in broad histone marks are often PCR bias.
+
+REVIEWER NOTES:
+- Is duplicate *removal* correct for our target (TF vs Histone)? Should we just *mark* them?
+- Is "MT" the exact name of the mitochondrial chromosome in our FASTA?
+-> Verdict: 
+
+
+--------------------------------------------------------------------------------
+4. POST-ALIGNMENT QUALITY FILTERING
+--------------------------------------------------------------------------------
+Tools used: samtools view
+Current Pipeline Settings:
+- MAPQ: 30 (Filter out multireaders or ambiguous alignments)
+- flags: 3844 (exclude specific SAM flags: read unmapped, not primary, etc.)
+
+READING ASSIGNMENT:
+* Read up on ENCODE ENAP pipeline specifications (Mapping Quality threshold).
+* Understand SAM flags (Use Picard Explain Flags site for 3844).
+
+REVIEWER NOTES:
+- Is MAPQ 30 too stringent or too loose for ChIP-seq? (bwa mem vs bowtie2 scoring differs)
+- Are we inadvertently throwing away useful reads with flag 3844?
+-> Verdict: 
+
+
+--------------------------------------------------------------------------------
+5. NARROW PEAK CALLING (MACS2)
+--------------------------------------------------------------------------------
+Tools used: MACS2
+Current Pipeline Settings:
+- format: BAMPE (MACS2 evaluates actual paired-end fragment sizes, ignores --nomodel)
+- qvalue: 0.01 (FDR cutoff for peak significance)
+- genome_size: hs (Human)
+
+READING ASSIGNMENT:
+* Paper: "Model-based Analysis of ChIP-Seq (MACS)" (Zhang et al., 2008)
+  DOI: 10.1186/gb-2008-9-9-r137
+* Topic: MACS2 --format BAM vs BAMPE.
+
+REVIEWER NOTES:
+- Is q=0.01 too relaxed for our specific TF/Histone? ENCODE sometimes uses 0.05 for broad.
+- If we change to an organism that isn't human/mouse/fly/worm, what is the exact string we provide to genome_size?
+-> Verdict: 
+
+
+--------------------------------------------------------------------------------
+6. QUALITY CONTROL METRICS (FRiP & Cross-Correlation)
+--------------------------------------------------------------------------------
+Tools used: Bedtools (FRiP), PhantomPeakQualTools (Cross-correlation)
+Current Pipeline Settings:
+- FRiP computation uses mapped fragments in narrowPeaks vs total mapped fragments.
+- Phantompeakqualtools executes SPP algorithm.
+
+READING ASSIGNMENT:
+* Paper: "Evaluating ChIP-seq quality with cross-correlation..." (Marinoy et al., 2014)
+  DOI: 10.1534/g3.113.008680
+* Topic: NRF (Non-redundant fraction), FRiP (Fraction of reads in peaks), NSC, RSC.
+
+REVIEWER NOTES:
+- What are our pass/fail thresholds? (e.g. ENCODE FRiP >= 1% or >= 5% ?)
+- What NSC/RSC threshold should determine if an experiment failed entirely?
+-> Verdict: 
+
+
+--------------------------------------------------------------------------------
+7. NORMALIZATION & HEATMAPS (deepTools)
+--------------------------------------------------------------------------------
+Tools used: computeMatrix, plotHeatmap, bamCoverage
+Current Pipeline Settings:
+- Coverage Normalization: CPM (counts per million) over bin size 1000
+- Heatmap window: -3000bp downstream to +3000bp upstream
+
+READING ASSIGNMENT:
+* Paper: "deepTools2: a next generation web server for deep-sequencing data analysis"
+  DOI: 10.1093/nar/gkw257
+
+REVIEWER NOTES:
+- For bigWig generation, is CPM the best choice, or should we use RPKM/BPM/1x_depth?
+- Is a 1kb bin size appropriate for visualization, or too coarse?
+-> Verdict: 
+
+
+--------------------------------------------------------------------------------
+8. PEAK ANNOTATION (ChIPseeker)
+--------------------------------------------------------------------------------
+Tools used: ChIPseeker (R package)
+Current Pipeline Settings:
+- tssRegion: c(-3000, 3000) (Peak is annotated as "Promoter" if within 3kb of TSS)
+- feature_types: gene, exon, CDS (default GFF parsing)
+
+READING ASSIGNMENT:
+* Paper: "ChIPseeker: an R/Bioconductor package for ChIP peak annotation" (Yu et al., 2015)
+  DOI: 10.1093/bioinformatics/btv145
+
+REVIEWER NOTES:
+- Is a promoter definition of +/- 3kb appropriate for our samples? Or should it be finer (e.g. +/- 1kb)?
+- Do we have the correct GTF/GFF matching our FASTA genome build exactly?
+-> Verdict: 
+
+
+--------------------------------------------------------------------------------
+9. MOTIF DISCOVERY (HOMER)
+--------------------------------------------------------------------------------
+Tools used: findMotifsGenome.pl (HOMER)
+Current Pipeline Settings:
+- genome build specifies which background sequences HOMER naturally uses.
+- Default parameters for region size are used instead of overriding with -size.
+
+READING ASSIGNMENT:
+* Paper: "Simple Combinations of Lineage-Determining Transcription Factors..." (Heinz et al., 2010 - HOMER paper)
+  DOI: 10.1016/j.molcel.2010.05.004
+
+REVIEWER NOTES:
+- Since we aren't specifying `-size` explicitly, HOMER might use default 200bp around peak center. Is this optimal for our data?
+- Do we need to provide a custom background bed file (`-bg`) if looking at specific differential peaks?
+-> Verdict: 
+
+
+================================================================================
+FINAL SIGNOFF
+================================================================================
+Reviewer Name:
+Date completed:
+
+Overall feedback & parameters to change in config.yaml / Snakefile:
+1.
+2.
+3.

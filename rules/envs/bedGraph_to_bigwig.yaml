@@ -1,0 +1,8 @@
+
+name: tobigwig_env
+channels:
+    - bioconda
+    - conda-forge
+    - defaults
+dependencies:
+    - ucsc-bedgraphtobigwig

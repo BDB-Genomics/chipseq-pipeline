@@ -1,0 +1,5 @@
+sample	condition	replicate	fastq_r1	fastq_r2	control
+Sample1	Control	1	data/fastp/Sample1_Control_rep1_R1.fastq.gz	data/fastp/Sample1_Control_rep1_R2.fastq.gz	NONE
+Sample2	Control	2	data/fastp/Sample2_Control_rep2_R1.fastq.gz	data/fastp/Sample2_Control_rep2_R2.fastq.gz	NONE
+Sample3	Treatment	1	data/fastp/Sample3_Treatment_rep1_R1.fastq.gz	data/fastp/Sample3_Treatment_rep1_R2.fastq.gz	Sample1
+Sample4	Treatment	2	data/fastp/Sample4_Treatment_rep2_R1.fastq.gz	data/fastp/Sample4_Treatment_rep2_R2.fastq.gz	Sample2
