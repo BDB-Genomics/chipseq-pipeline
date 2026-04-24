@@ -1,67 +1,20 @@
-# Modular ChIP-seq Pipeline
+<p align="center">
+  <img src="assets/pipeline_diagram.svg" alt="Pipeline DAG" width="860" />
+</p>
 
-A scalable, reproducible, and modular [Snakemake](https://snakemake.readthedocs.io/) pipeline for end-to-end processing of paired-end ChIP-seq data. Starting from raw FASTQ files, the pipeline performs quality control, alignment, duplicate removal, peak calling, coverage generation, control-aware signal normalization, and downstream analysis.
+# BDB-Genomics ChIP-seq Pipeline
 
----
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://github.com/BDB-Genomics/chipseq-pipeline/actions"><img src="https://img.shields.io/badge/Status-Integration_Testing-orange" alt="Status"></a>
+  <a href="https://snakemake.readthedocs.io"><img src="https://img.shields.io/badge/Snakemake-≥8.0-brightgreen.svg" alt="Snakemake"></a>
+</p>
 
-## Features
+<p align="center">
+  <img src="assets/readme_animation.svg" alt="ChIP-seq Pipeline Overview" width="820" />
+</p>
 
-- **Reproducible** — All tools run inside strictly versioned [Galaxy Project Singularity containers](https://depot.galaxyproject.org/singularity/) or Conda environments. Results are byte-for-byte reproducible.
-- **Modular** — Each analysis step lives in its own `rules/*.smk` file. Add, remove, or swap steps without touching the master `Snakefile`.
-- **Config-driven** — A single `config.yaml` controls all parameters. No hardcoded values inside rules.
-- **Validated** — `rules/scripts/validate_config.py` checks the config and sample sheet at startup, catching errors before any job is submitted.
-- **Control-aware** — Matched control samples can be used for MACS2 peak calling and `bamCompare` signal tracks.
-- **QC-gated** — Key QC metrics can fail the workflow if thresholds are not met.
-- **Cluster-ready** — All rules declare `threads`, `mem_mb`, and `time` resources, making it compatible with SLURM, SGE, and PBS via Snakemake profiles.
-
----
-
-## Pipeline Overview
-
-```
-Raw FASTQ
-   │
-   ├─ 01 fastp          — Adapter trimming & quality filtering
-   ├─ 02 FastQC         — Per-sample QC report (post-trim)
-   │
-   ├─ 03 Bowtie2        — Paired-end alignment (--very-sensitive)
-   ├─ 04 samtools sort  — Coordinate-sorted BAM
-   │
-   ├─ 05 Mito filter    — Count & remove mitochondrial reads
-   ├─ 06 samtools fixmate
-   ├─ 07 samtools markdup — Duplicate removal
-   ├─ 08 samtools index
-   ├─ 09 samtools view  — MAPQ ≥ 30, flag filter (3844)
-   ├─ 10 samtools index
-   ├─ 11 samtools stats — Post-filtering alignment statistics
-   ├─ 12 Fragment size analysis
-   │
-   ├─ 13 Picard AlignmentSummaryMetrics
-   ├─ 14 Picard InsertSizeMetrics
-   │
-   ├─ 15 bedtools genomecov — Genome coverage (BedGraph)
-   ├─ 16 sort BedGraph
-   ├─ 17 bedGraphToBigWig — BigWig for genome browsers
-   ├─ 18 deepTools bamCompare — log2(ChIP / control) signal track
-   │
-   ├─ 19 deepTools multiBigwigSummary — Correlation matrix
-   │
-   ├─ 20 MACS2          — Narrow peak calling
-   ├─ 21 Blacklist filter — Remove ENCODE blacklist regions
-   │
-   ├─ 22 deepTools computeMatrix / plotHeatmap
-   ├─ 23 FRiP calculation
-   ├─ 24 QC gate         — Threshold-based pass/fail checks
-   │
-   ├─ 25 ChIPseeker      — Peak annotation
-   ├─ 26 HOMER           — De novo motif analysis
-   │
-   ├─ 27 PhantomPeakQualTools — NSC / RSC strand cross-correlation
-   ├─ 28 Preseq          — Library complexity estimation
-   ├─ 29 Qualimap bamqc  — Comprehensive BAM QC
-   │
-   └─ 30 MultiQC         — Aggregated QC report
-```
+> A scalable, reproducible, and modular Snakemake pipeline for end-to-end processing of paired-end ChIP-seq data. Starting from raw FASTQ files, the pipeline performs quality control, alignment, duplicate removal, peak calling, coverage generation, control-aware signal normalization, and downstream analysis.
 
 ---
 

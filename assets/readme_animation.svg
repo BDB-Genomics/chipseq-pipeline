@@ -1,0 +1,81 @@
+<svg width="820" height="797" viewBox="0 0 820 797" xmlns="http://www.w3.org/2000/svg">
+<rect width="100%" height="100%" fill="white"/>
+<g opacity="0">
+  <animate attributeName="opacity" from="0" to="1" dur="0.6s" begin="0.2s" fill="freeze"/>
+  <text x="410" y="50" text-anchor="middle" font-family="system-ui,sans-serif" font-size="26" font-weight="800" fill="#1a1a2e">ChIP-seq Pipeline</text>
+  <text x="410" y="74" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" fill="#666">Modular, scalable Snakemake pipeline for end-to-end processing of paired-end ChIP-seq data</text>
+</g>
+<g opacity="0">
+  <animate attributeName="opacity" from="0" to="1" dur="0.2s" begin="1.0999999999999999s" fill="freeze"/>
+  <line x1="40" y1="100" x2="780" y2="100" stroke="#ddd" stroke-width="1"/>
+</g>
+<g opacity="0">
+  <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="1.5999999999999999s" fill="freeze"/>
+  <rect x="40" y="130" width="220" height="110" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1.2"/>
+  <text x="150" y="154" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#064635">1. Alignment &amp; Filtering</text>
+  <text x="54" y="174" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">Adapter trimming via fastp.</text>
+  <text x="54" y="190" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">Bowtie2 alignment. Strict</text>
+  <text x="54" y="206" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">filtering: MAPQ ≥ 30, FLAG</text>
+  <text x="54" y="222" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">filter (3844). Mark duplicates</text>
+  <text x="54" y="238" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">and remove mitochondrial reads.</text>
+</g>
+<g opacity="0">
+  <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="2.4s" fill="freeze"/>
+  <rect x="280" y="130" width="220" height="110" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1.2"/>
+  <text x="390" y="154" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#064635">2. Signal Extration</text>
+  <text x="294" y="174" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">Genome coverage computed.</text>
+  <text x="294" y="190" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">BigWig generation. Control-</text>
+  <text x="294" y="206" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">aware signal normalization</text>
+  <text x="294" y="222" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">via deepTools bamCompare</text>
+  <text x="294" y="238" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">log2(ChIP/control).</text>
+</g>
+<g opacity="0">
+  <animate attributeName="opacity" from="0" to="1" dur="0.5s" begin="3.2s" fill="freeze"/>
+  <rect x="520" y="130" width="220" height="110" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1.2"/>
+  <text x="630" y="154" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#064635">3. Peaks &amp; Downstream</text>
+  <text x="534" y="174" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">Narrow peak calling via MACS2.</text>
+  <text x="534" y="190" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">Blacklist filtering. Peak</text>
+  <text x="534" y="206" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">annotation (ChIPseeker) and</text>
+  <text x="534" y="222" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">motifs (HOMER). NSC/RSC QC</text>
+  <text x="534" y="238" font-family="system-ui,sans-serif" font-size="11" fill="#0F6E56">and MultiQC reporting.</text>
+</g>
+<g opacity="0">
+  <animate attributeName="opacity" from="0" to="1" dur="0.2s" begin="4.0s" fill="freeze"/>
+  <line x1="40" y1="280" x2="780" y2="280" stroke="#ddd" stroke-width="1"/>
+</g>
+<g opacity="0">
+  <animate attributeName="opacity" from="0" to="1" dur="0.4s" begin="4.5s" fill="freeze"/>
+  <text x="40" y="310" font-family="system-ui,sans-serif" font-size="16" font-weight="700" fill="#1a1a2e">Repository Layout</text>
+  <rect x="40" y="325" width="460" height="178" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="0.8"/>
+  <text x="52" y="345" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#24292f" xml:space="preserve">.</text>
+  <text x="52" y="363" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#24292f" xml:space="preserve">├── Snakefile                 # Main Snakemake entry point</text>
+  <text x="52" y="381" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#24292f" xml:space="preserve">├── config.yaml               # Central configuration</text>
+  <text x="52" y="399" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#24292f" xml:space="preserve">├── data/                     # Samples, FastQ, and reference genomes</text>
+  <text x="52" y="417" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#24292f" xml:space="preserve">├── rules/                    # Modular analysis steps (*.smk)</text>
+  <text x="52" y="435" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#24292f" xml:space="preserve">│   └── envs/                 # Conda envs (apptainer ready)</text>
+  <text x="52" y="453" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#24292f" xml:space="preserve">├── scripts/                  # run_pipeline.sh</text>
+  <text x="52" y="471" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#24292f" xml:space="preserve">├── results/                  # Final BigWigs, peaks, and QC</text>
+  <text x="52" y="489" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#24292f" xml:space="preserve">└── logs/                     # Verbose output per rule</text>
+</g>
+<g opacity="0">
+  <animate attributeName="opacity" from="0" to="1" dur="0.2s" begin="5.2s" fill="freeze"/>
+  <line x1="40" y1="547" x2="780" y2="547" stroke="#ddd" stroke-width="1"/>
+</g>
+<g opacity="0">
+  <animate attributeName="opacity" from="0" to="1" dur="0.4s" begin="5.7s" fill="freeze"/>
+  <text x="40" y="577" font-family="system-ui,sans-serif" font-size="16" font-weight="700" fill="#1a1a2e">Quick Start</text>
+  <text x="40" y="602" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#0F6E56"># 1. Edit config.yaml and sample sheet</text>
+  <text x="40" y="622" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#0F6E56"># 2. Run locally with Conda</text>
+  <text x="40" y="637" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#24292f">snakemake --use-conda --cores 8</text>
+  <text x="40" y="657" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#0F6E56"># 3. Or run locally with Singularity containers</text>
+  <text x="40" y="672" font-family="SFMono-Regular,Consolas,monospace" font-size="11" fill="#24292f">snakemake --use-singularity --cores 8</text>
+</g>
+<g opacity="0">
+  <animate attributeName="opacity" from="0" to="1" dur="0.2s" begin="6.4s" fill="freeze"/>
+  <line x1="40" y1="717" x2="780" y2="717" stroke="#ddd" stroke-width="1"/>
+</g>
+<g opacity="0">
+  <animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="6.9s" fill="freeze"/>
+  <text x="410" y="767" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#aaa">BDB-Genomics · chipseq-pipeline · MIT License</text>
+</g>
+</svg>
